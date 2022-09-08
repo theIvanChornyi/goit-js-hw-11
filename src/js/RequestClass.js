@@ -1,5 +1,5 @@
 const axios = require('axios').default;
-export default class NewItems {
+export class NewItems {
   constructor() { 
     let userData = '';
     let pagination = 1;
