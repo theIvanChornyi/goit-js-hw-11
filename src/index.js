@@ -70,13 +70,19 @@ function getGalleryHtml(Array) {
 
 async function createElems(callback) {
   try {
-    const {hits: dataCard ,total:totalCards} = await (await getItems.request()).data;
-    if (dataCard.length < 1) { 
+    const { hits: dataCard, total: totalCards } = await (await getItems.request()).data;
+    const amountCards = dataCard.length;
+    if (amountCards < 1) { 
       destroyHtml(gallery);
       disappearBtn(showMoreBtn);
       Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       return;
     }
+    if (amountCards < 40) {
+      disappearBtn(showMoreBtn);
+      Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+    console.log(amountCards);
     const Htmlstring = await getGalleryHtml(dataCard);
     await callback(Htmlstring);
     getItems.updatePage();
