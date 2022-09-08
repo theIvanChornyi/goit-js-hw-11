@@ -82,7 +82,6 @@ async function createElems(callback) {
       disappearBtn(showMoreBtn);
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
-    console.log(amountCards);
     const Htmlstring = await getGalleryHtml(dataCard);
     await callback(Htmlstring);
     getItems.updatePage();
