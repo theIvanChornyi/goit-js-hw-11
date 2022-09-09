@@ -7,9 +7,11 @@ import  Newitems  from './js/RequestClass';
 const searchingForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const showMoreBtn = document.querySelector('.load-more');
+const CARDS_ON_PAGE = 40;
 
 const getItems = new Newitems();
-const lightbox = new SimpleLightbox('.gallery a',{  captions: true,
+const lightbox = new SimpleLightbox('.gallery a', {
+  captions: true,
   captionType: 'attr',
   captionsData:	'alt',
   captionPosition: 'bottom',
@@ -25,27 +27,34 @@ async function initialGalleryEl(event) {
   event.preventDefault();
   getItems.search = event.target.searchQuery.value.trim();
   getItems.resetPage();
-  const cardsAmound = await createElems(parseHtml);
-  if (cardsAmound > 0) {
-    await Notify.info(`Hooray! We found ${cardsAmound} images.`);
+  const {totalCards} = await createElems(parseHtml);
+  if (totalCards > CARDS_ON_PAGE) {
     await apearBtn(showMoreBtn);
-  } 
+  }
+  await Notify.info(`Hooray! We found ${totalCards} images.`);
+
 }
 
 async function addGalleryEl() {
-  await createElems(insertHtml); 
+  const {amountCards,} = await createElems(insertHtml); 
   await slowScroll(gallery);
+  if (amountCards < CARDS_ON_PAGE) {
+    await disappearBtn(showMoreBtn);
+    await Notify.info("We're sorry, but you've reached the end of search results.");
+  }
 }
 
 function getGalleryHtml(Array) {
   return Array.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-    return `<a class="photo-card post" href="${largeImageURL}">
-              <img
-                class="gallery-image"
-                src="${webformatURL}"
-                alt="${tags}"
-                loading="lazy"
-              />
+    return `<div class="photo-card post">
+              <a href="${largeImageURL}">
+                <img
+                  class="gallery-image"
+                  src="${webformatURL}"
+                  alt="${tags}"
+                  loading="lazy"
+                />
+              </a>
               <div class="info">
                 <p class="info-item">
                   <b>Likes</b>
@@ -64,7 +73,7 @@ function getGalleryHtml(Array) {
                   ${downloads}
                 </p>
               </div>
-            </a>`;
+            </div>`;
    }).join('');
 }
 
@@ -78,15 +87,11 @@ async function createElems(callback) {
       Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       return;
     }
-    if (amountCards < 40) {
-      disappearBtn(showMoreBtn);
-      Notify.info("We're sorry, but you've reached the end of search results.");
-    }
     const Htmlstring = await getGalleryHtml(dataCard);
     await callback(Htmlstring);
     getItems.updatePage();
     lightbox.refresh();
-    return totalCards;
+    return ({totalCards, amountCards});
   } catch (error) {
     Notify.failure(error.mesage);
   }
