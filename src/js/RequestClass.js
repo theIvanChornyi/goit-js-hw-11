@@ -18,8 +18,8 @@ export default class NewItems {
         page: this.pagination,
       }
     });
-    if (!response.ok) {
-      throw new Error(response.status);
+    if (await !response.ok) {
+     throw new Error(response.status);
     }
     return response;
   }
