@@ -25,7 +25,14 @@ gallery.addEventListener('click', (e) => e.preventDefault());
 
 async function initialGalleryEl(event) {
   event.preventDefault();
-  getItems.search = event.target.searchQuery.value.trim();
+  const userRequest = event.target.searchQuery.value.trim();
+  if (!userRequest) {
+    Notify.failure('Write something!');
+    disappearBtn(showMoreBtn);
+    parseHtml(gallery,'');
+    return;
+  }
+  getItems.search = userRequest;
   getItems.resetPage();
   const {totalCards} = await createElems(parseHtml);
   if (totalCards > CARDS_ON_PAGE) {
@@ -82,13 +89,13 @@ async function createElems(callback) {
     const { hits: dataCard, total: totalCards } = await (await getItems.request()).data;
     const amountCards = dataCard.length;
     if (amountCards < 1) { 
-      destroyHtml(gallery);
+      parseHtml('');
       disappearBtn(showMoreBtn);
       Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       return;
     }
     const Htmlstring = await getGalleryHtml(dataCard);
-    await callback(Htmlstring);
+    await callback(gallery, Htmlstring);
     getItems.updatePage();
     lightbox.refresh();
     return ({totalCards, amountCards});
@@ -97,17 +104,14 @@ async function createElems(callback) {
   }
 }
 
-function parseHtml(htmlstring) {
+function parseHtml(where, htmlstring) {
   gallery.innerHTML = htmlstring;
 }
 
-function insertHtml(htmlstring) {
+function insertHtml(where, htmlstring) {
   gallery.insertAdjacentHTML("beforeend",htmlstring);
 }
 
-function destroyHtml(where) {
-  where.innerHTML = '';
-}
 
 function slowScroll(where) {
   const { height } = where.getBoundingClientRect();
