@@ -29,7 +29,7 @@ async function initialGalleryEl(event) {
   if (!userRequest) {
     Notify.failure('Write something!');
     disappearBtn(showMoreBtn);
-    parseHtml(gallery,'');
+    parseHtml(gallery, '');
     return;
   }
   getItems.search = userRequest;
@@ -104,12 +104,12 @@ async function createElems(callback) {
   }
 }
 
-function parseHtml(where, htmlstring) {
-  gallery.innerHTML = htmlstring;
+function parseHtml(where, htmlstring = '') {
+  where.innerHTML = htmlstring;
 }
 
-function insertHtml(where, htmlstring) {
-  gallery.insertAdjacentHTML("beforeend",htmlstring);
+function insertHtml(where, htmlstring = '') {
+  where.insertAdjacentHTML("beforeend",htmlstring);
 }
 
 
