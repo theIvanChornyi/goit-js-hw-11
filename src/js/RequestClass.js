@@ -5,7 +5,7 @@ export default class NewItems {
     let pagination = 1;
   }
   async request() {
-     return await axios({
+    const response = await axios({
       url: 'https://pixabay.com/api/',
       method: 'get',
       params: {
@@ -16,8 +16,12 @@ export default class NewItems {
         safesearch: true,
         per_page: 40,
         page: this.pagination,
-       }
-     });
+      }
+    });
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    return response;
   }
   get search() {
     return this.userData;
